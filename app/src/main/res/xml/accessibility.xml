@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--onKeyEvent()使用的问题还是没搞定，有待以后研究-->
+
+<!--android:accessibilityEventTypes="typeContextClicked|typeViewClicked"-->
+<accessibility-service
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityFlags="flagReportViewIds"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityEventTypes="typeViewFocused|typeViewClicked"
+    android:canRetrieveWindowContent="true"
+    android:notificationTimeout="100" />
+
+    <!--android:accessibilityEventTypes="typeAllMask"-->
+    <!--android:accessibilityFeedbackType="feedbackAllMask"-->
+    <!--android:packageNames="run.firecontrol"-->
+
+    <!--android:accessibilityFlags="flagRequestFilterKeyEvents|flagReportViewIds|flagIncludeNotImportantViews"-->
+    <!--android:accessibilityFeedbackType="feedbackAllMask|feedbackHaptic"-->
+    <!--android:accessibilityEventTypes="typeContextClicked|typeViewClicked|typeViewFocused|typeWindowsChanged"-->
+    <!--android:canRetrieveWindowContent="true"-->
+    <!--android:canRequestFilterKeyEvents="true"-->
+    <!--android:canPerformGestures="true"-->

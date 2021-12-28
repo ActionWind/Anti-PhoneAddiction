@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Guardian">
+
+    <EditText
+        android:id="@+id/endTime"
+        android:layout_width="158dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="17dp"
+        android:layout_marginTop="14dp"
+        android:ems="10"
+        android:hint="700表示7:00"
+        android:inputType="time"
+        app:layout_constraintStart_toEndOf="@+id/endTimeLabel"
+        app:layout_constraintTop_toBottomOf="@+id/to" />
+
+    <Button
+        android:id="@+id/StartLock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="确定"
+        android:onClick="onClick"
+        tools:layout_editor_absoluteX="159dp"
+        tools:layout_editor_absoluteY="316dp" />
+
+    <TextView
+        android:id="@+id/startTimeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="163dp"
+        android:text="开始时间："
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/endTimeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="结束时间："
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="@id/startTimeLabel"
+        app:layout_constraintTop_toBottomOf="@+id/startTimeLabel" />
+
+    <TextView
+        android:id="@+id/shieldAllTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="110dp"
+        android:layout_marginBottom="60dp"
+        android:text="整机屏蔽时间设置"
+        app:layout_constraintBottom_toTopOf="@+id/to"
+        app:layout_constraintStart_toStartOf="@id/startTimeLabel" />
+
+    <TextView
+        android:id="@+id/to"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="160dp"
+        android:layout_marginTop="17dp"
+        android:text="至"
+        app:layout_constraintStart_toStartOf="@id/startTimeLabel"
+        app:layout_constraintTop_toBottomOf="@id/startTimeLabel" />
+
+    <TextView
+        android:id="@+id/notice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="．"
+        tools:layout_editor_absoluteX="168dp"
+        tools:layout_editor_absoluteY="42dp" />
+
+    <EditText
+        android:id="@+id/startTime"
+        android:layout_width="158dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:ems="10"
+        android:hint="2200表示22:00"
+        android:inputType="time"
+        app:layout_constraintBottom_toTopOf="@+id/to"
+        app:layout_constraintStart_toEndOf="@+id/startTimeLabel" />
+</androidx.constraintlayout.widget.ConstraintLayout>
