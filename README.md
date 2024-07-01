@@ -1,9 +1,173 @@
 # Anti-PhoneAddiction
 Android手机防沉迷
+     (现在手机游戏、短视频等不仅对小孩子负面影响巨大，连很多成年人都沉迷其中难以自拔，影响工作、生活、学习。这已经造成全社会性的巨大影响，长此以往，国将不国。本人仅在此以自己掌握的些许技术略尽绵薄之力，希望能抛砖引玉，更希望能有具备大能力的各方有识之士力挽狂澜，成之我所不能。欢迎加微交流84378495，Q群：548305112）
 
-(现在手机游戏、短视频等不仅对小孩子负面影响巨大，连很多成年人都沉迷其中难以自拔，影响工作、生活、学习。这已经造成全社会性的巨大影响，长此以往，国将不国。
-本人仅在此以自己掌握的些许技术略尽绵薄之力，希望能抛砖引玉，更希望能有具备大能力的各方有识之士力挽狂澜，成之我所不能。欢迎加微交流84378495，Q群：548305112）
+        正在写一个免费、开源的手机防沉迷公益软件，有兴趣的朋友一起来开发吧，有朋友一起做比较有动力一些，源代码已经上传到github：https://github.com/ActionWind/Anti-PhoneAddiction
+源代码基于Android8.1版本，其他版本请注意兼容性问题。
 
-对于这个项目有兴趣的人可以先看介绍：http://t.csdn.cn/p58h9 ，也可以通过微信和qq群和我交流
+        在这里介绍一下它的基本原理。Android手机防沉迷软件的技术原理非常简单，主要是使用Android无障碍服务接口检测当前的app界面，如果它正好是用户所设置的需要限制的界面，则弹出悬浮窗遮挡此界面，让用户无法对其进行操作。
 
+       所以，如果你想要开发一款Android平台的防沉迷软件，需要做以下这些事情：
 
+       1、写一个类继承AccessibilityService类，实现必要的接口。这个后台服务将一直运行在手机上，一旦检测相应的界面出现就做出相应的反应。
+
+       2、实现全屏悬浮窗。
+
+       3、设计用户界面和接口，让用户能够计划使用手机的时间，设置以什么方式和时间限制整部手机、单个应用或某个应用界面的使用。
+
+       4、还需要一个小小的数据库用于存储这些配置。
+
+       5、Android各个版本的适配，因为各个版本的应用编程接口会有一些不同。
+
+       实现了以上5步之后基本上就是一个可以用于实用的防沉迷软件了，对于一般的安卓程序员来说，可以说一点都不困难，就是需要你花时间和精力就是了。相对而言，其中第三步可能就是最难最复杂的部分了。如果要做得好一点，还需要融入一些心理学方面的设计和引导。下面就讲一下每一步如何实现：
+
+一、实现无障碍服务：
+
+1、AccessibilityService类的实现：
+
+public class AntiPhoneAddiction extends AccessibilityService {
+// 悬浮窗所需要的变量
+    WindowManager windowManager;
+    View fullScreenFloatingWindow;
+    WindowManager.LayoutParams layoutParams;
+    Display display;
+    int width;
+    int height;
+    int fullFloatingWindowFlag = 0;//悬浮窗是否打开的标志位
+    @Override //此方法对无障碍服务进行配置
+    protected void onServiceConnected() {
+        super.onServiceConnected();
+        fullScreenFloatingWindow();//生成悬浮窗的方法，看第二步。
+        AccessibilityServiceInfo config = new AccessibilityServiceInfo();
+        //配置监听的事件类型为界面变化
+        config.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ;
+        config.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
+        if (Build.VERSION.SDK_INT >= 16) {
+            config.flags = AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
+        }
+        setServiceInfo(config);
+    }
+ 
+    @Override //核心方法，对界面进行监听并作出响应的操作
+    public void onAccessibilityEvent(AccessibilityEvent event) {
+       if (event.getSource() != null)｛
+            if (event.getPackageName().equals("com.tencent.mobileqq")) {
+                //当qq界面出现时弹出悬浮窗挡住它
+                if (fullFloatingWindowFlag == 0) {                    
+                    windowManager.addView(fullScreenFloatingWindow, layoutParams);//显示悬浮窗
+                    fullFloatingWindowFlag = 1;
+                }
+            }
+                 //全局屏蔽，同时设置了白名单
+                if (timeBetween(startTime_user, endTime_user)) {
+                    if (!whiteList.contains(packageName)) {
+                        guardsSheild();//晚上屏蔽手机
+                    }
+                }
+                        getActivityName(event);
+
+                        //屏蔽黑名单中的界面：
+
+                if (blackList.contains(activityName)) {
+                    if (!timeBetween(13 * 60 + 5, 13 * 60 + 25)) {
+                        guardsSheild();
+                    }
+                } 
+         ｝
+    ｝
+ 
+    @Override //这个暂时可以留空
+    public void onInterrupt() {
+ 
+    }
+｝ 
+2、Manifest文件的设置：
+
+在 <appilication中加入以下代码：
+
+<service
+    android:name=".AutoFire"
+    android:enabled="true"
+    android:exported="true"
+    android:label="AutoFire"
+    android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+    <intent-filter>
+        <action android:name="android.accessibilityservice.AccessibilityService" />
+    </intent-filter>
+    <meta-data
+        android:name="android.accessibilityservice"
+        android:resource="@xml/accessibilitysettings"
+        />
+</service>
+在工程目录/app/src/main/res文件夹下新建xml目录，新建accessibilitysettings.xml文件，写入代码：
+
+<?xml version="1.0" encoding="utf-8"?>
+ 
+    <accessibility-service
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:accessibilityEventTypes="typeViewClicked|typeViewFocused"
+        android:canPerformGestures="true"
+        android:canRetrieveWindowContent="true"
+        android:notificationTimeout="100" />
+我的项目已经实现了手机全局锁定、单个应用锁定、单个界面锁定的功能，主要包含以下方法：
+
+//app定时屏蔽
+    void appSheild(String pName, int startTime, int endTime) 
+
+//app中的某个界面定时屏蔽　
+    void activitySheild(String shieldActivity, String currentActivityName, int startTime, int endTime)
+
+//app中的某个界面定时屏蔽（黑名单模式）　
+    void activitySheild(HashSet blackList, String currentActivityName, int startTime, int endTime)
+
+//点击指定按钮时屏蔽（黑名单模式）
+    void callSheildWhenClick()
+
+//点击指定按钮时屏蔽（指定按钮文本模式）
+    void callSheildWhenClick(CharSequence buttonText)
+
+//获取Activity界面名称
+void getActivityName(AccessibilityEvent event)
+
+等等……
+
+二、实现悬浮窗：
+
+    private void fullScreenFloatingWindow() {
+        if (Settings.canDrawOverlays(this)) {
+            // 获取WindowManager服务
+            windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+ 
+            // 新建悬浮窗控件
+            fullScreenFloatingWindow = new Button(getApplicationContext());
+            //button.setText("Floating Window");
+//            recentScreen.setBackgroundColor(Color.rgb(204, 232, 207));
+            fullScreenFloatingWindow.setBackgroundColor(Color.GREEN);
+            fullScreenFloatingWindow.setAlpha(0.5f);
+//            fullScreenFloatingWindow.setText("屏蔽掉你，不让你看！");
+            // 设置LayoutParam
+            layoutParams = new WindowManager.LayoutParams();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+                layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
+ 
+            } else {
+                layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE;
+            }
+            display = windowManager.getDefaultDisplay();
+            width = display.getWidth();
+            height = display.getHeight();
+            layoutParams.format = PixelFormat.RGBA_8888;
+            layoutParams.width = width;
+            layoutParams.height = height;
+ 
+ 
+        }
+    }
+3、用户界面设计。UI我暂时只写了一个让用户设置全局屏蔽的页面，其他的还没写。打算借鉴我一直在使用的一个防沉迷软件，它的用户界面已经设计得挺好了：
+
+![](https://img2024.cnblogs.com/blog/3475515/202407/3475515-20240701122422199-1377328633.webp) ![](https://img2024.cnblogs.com/blog/3475515/202407/3475515-20240701122511153-481036100.png) ![](https://img2024.cnblogs.com/blog/3475515/202407/3475515-20240701122538297-1338960422.webp) ![](https://img2024.cnblogs.com/blog/3475515/202407/3475515-20240701122554279-332502178.webp) ![](https://img2024.cnblogs.com/blog/3475515/202407/3475515-20240701122625971-1809728420.webp) ![](https://img2024.cnblogs.com/blog/3475515/202407/3475515-20240701122654036-80015221.webp) ![](https://img2024.cnblogs.com/blog/3475515/202407/3475515-20240701122713364-1109712736.webp) ![](https://img2024.cnblogs.com/blog/3475515/202407/3475515-20240701122735389-976284194.webp) ![](https://img2024.cnblogs.com/blog/3475515/202407/3475515-20240701122755761-54061805.webp) ![](https://img2024.cnblogs.com/blog/3475515/202407/3475515-20240701122829751-900151507.webp) ![](https://img2024.cnblogs.com/blog/3475515/202407/3475515-20240701122846784-685339138.webp) ![](https://img2024.cnblogs.com/blog/3475515/202407/3475515-20240701122913044-1002401879.webp) ![](https://img2024.cnblogs.com/blog/3475515/202407/3475515-20240701122933555-2075257388.webp)
+
+5.数据库 和 6.版本适配 还没做。
+
+ 未完待续
